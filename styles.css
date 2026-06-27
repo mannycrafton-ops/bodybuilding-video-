@@ -1,0 +1,134 @@
+:root {
+  --bg: #0d0f14;
+  --panel: #161a23;
+  --panel-2: #1f2530;
+  --line: #2a3140;
+  --text: #e8ecf3;
+  --muted: #8b93a3;
+  --accent: #ff2d55;
+  --accent-2: #34c759;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand .logo { font-size: 24px; }
+.brand h1 { font-size: 20px; margin: 0; letter-spacing: 0.3px; }
+.brand .tag { color: var(--muted); font-size: 12px; margin-left: 6px; }
+
+.format-picker { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.fmt {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.fmt.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 18px 22px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (max-width: 820px) { main { grid-template-columns: 1fr; } }
+
+.dropzone {
+  border: 2px dashed var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  padding: 26px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.dropzone.drag { border-color: var(--accent); background: #1c1216; }
+.dz-icon { font-size: 30px; }
+.dz-inner p { margin: 6px 0; }
+
+.preview-wrap { margin-top: 16px; text-align: center; }
+#preview {
+  width: 100%;
+  max-height: 460px;
+  background: #000;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+.preview-label { margin-top: 8px; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+.timeline-head { display: flex; justify-content: space-between; align-items: baseline; }
+.timeline-head h2 { font-size: 16px; margin: 0 0 10px; }
+
+.timeline { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+
+.clip {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+.clip.selected { border-color: var(--accent); }
+.clip .thumb {
+  width: 70px; height: 70px; border-radius: 8px; object-fit: cover;
+  background: #000; cursor: pointer; border: 1px solid var(--line);
+}
+.clip .meta { min-width: 0; }
+.clip .name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.clip .trim { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.clip .trim label { font-size: 11px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.clip .trim input {
+  width: 80px; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; font-size: 12px;
+}
+.clip .dur { font-size: 11px; color: var(--accent-2); margin-top: 6px; }
+.clip .controls { display: flex; flex-direction: column; gap: 6px; }
+.clip .controls button {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 6px; width: 30px; height: 28px; cursor: pointer; font-size: 13px;
+}
+.clip .controls button:hover { border-color: var(--accent); }
+.clip .controls .del:hover { border-color: var(--accent); color: var(--accent); }
+
+.export-bar { margin-top: 18px; }
+.primary {
+  background: var(--accent); color: white; border: none; border-radius: 10px;
+  padding: 13px 22px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
+}
+.primary:disabled { opacity: .45; cursor: not-allowed; }
+
+.progress { margin-top: 12px; background: var(--panel-2); border-radius: 8px; overflow: hidden; position: relative; height: 26px; }
+.progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #ff6b8a); transition: width .2s; }
+.progress-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+#status { margin-top: 12px; }
+.empty { color: var(--muted); font-size: 13px; padding: 18px; text-align: center; border: 1px dashed var(--line); border-radius: 12px; }

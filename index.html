@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VlogCut — Vertical Video Editor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🎬</span>
+      <h1>VlogCut</h1>
+      <span class="tag">runs 100% on your machine — no uploads, no size limits</span>
+    </div>
+    <div class="format-picker">
+      <span>Format:</span>
+      <button class="fmt active" data-fmt="9:16">TikTok / Reels (9:16)</button>
+      <button class="fmt" data-fmt="1:1">Square (1:1)</button>
+      <button class="fmt" data-fmt="16:9">Wide (16:9)</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="left">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept="video/*" multiple hidden />
+        <div class="dz-inner">
+          <div class="dz-icon">⬆️</div>
+          <p><strong>Drop your clips here</strong> or click to browse</p>
+          <p class="muted">Add all 6 at once. They stay on your device.</p>
+        </div>
+      </div>
+
+      <div class="preview-wrap">
+        <video id="preview" controls playsinline></video>
+        <p class="muted preview-label" id="previewLabel">Select a clip to preview & trim</p>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="timeline-head">
+        <h2>Timeline <span class="muted" id="clipCount">(0 clips)</span></h2>
+        <span class="muted" id="totalDur"></span>
+      </div>
+
+      <ul id="timeline" class="timeline"></ul>
+
+      <div class="export-bar">
+        <button id="exportBtn" class="primary" disabled>Export Vlog 🚀</button>
+        <div class="progress" id="progressWrap" hidden>
+          <div class="progress-bar" id="progressBar"></div>
+          <span class="progress-label" id="progressLabel">Starting…</span>
+        </div>
+      </div>
+      <p class="muted small" id="status">Add clips to get started. First export loads the engine (~30 MB), one time.</p>
+    </section>
+  </main>
+
+  <!-- ffmpeg.wasm (single-threaded core, no special server headers needed) -->
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+  <script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
