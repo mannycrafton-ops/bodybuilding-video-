@@ -29,9 +29,6 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          # Auto-enable Pages so no manual toggle is needed once the repo is public.
-          enablement: true
 
       - name: Upload the Vlog Kit as the site
         uses: actions/upload-pages-artifact@v3
