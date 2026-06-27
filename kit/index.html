@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0d0f14" />
+<title>Viral Vlog Kit — Day in the Life</title>
+<style>
+  :root{
+    --bg:#0d0f14; --panel:#161a23; --panel2:#1f2530; --line:#2a3140;
+    --text:#e8ecf3; --muted:#8b93a3; --accent:#ff2d55; --accent2:#34c759;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);padding-bottom:78px;
+  }
+  header{
+    padding:18px 16px 12px;text-align:center;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--bg);z-index:5;
+  }
+  header h1{margin:0;font-size:19px;letter-spacing:.3px;}
+  header p{margin:4px 0 0;font-size:12px;color:var(--muted);}
+  main{padding:16px;max-width:560px;margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px;margin-bottom:14px;
+  }
+  .label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;}
+  .big{font-size:20px;line-height:1.35;font-weight:700;}
+  .body{font-size:15px;line-height:1.5;}
+  .muted{color:var(--muted);}
+  .small{font-size:12px;}
+
+  button{font-family:inherit;cursor:pointer;}
+  .btn{
+    background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:13px 16px;font-size:15px;font-weight:700;width:100%;margin-top:12px;
+  }
+  .btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);}
+  .btn:active{transform:scale(.99);}
+  .row{display:flex;gap:10px;}
+  .row .btn{margin-top:12px;}
+
+  .copy{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;margin-top:12px;
+    display:inline-flex;align-items:center;gap:6px;width:auto;
+  }
+  .copy.done{border-color:var(--accent2);color:var(--accent2);}
+
+  .clip{border-left:3px solid var(--accent);padding-left:12px;margin-bottom:6px;}
+  .clip .n{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.5px;}
+  .clip h3{margin:2px 0 6px;font-size:16px;}
+  .clip .film{font-size:14px;line-height:1.5;}
+  .clip .text{font-size:13px;color:var(--accent2);margin-top:6px;}
+  .clip .cap{font-size:13px;color:var(--muted);margin-top:4px;font-style:italic;}
+
+  .tags{font-size:14px;line-height:1.7;word-spacing:2px;}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .pill{
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted);
+    border-radius:999px;padding:7px 14px;font-size:13px;
+  }
+  .pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  nav{
+    position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);
+    border-top:1px solid var(--line);z-index:10;
+  }
+  nav button{
+    flex:1;background:none;border:none;color:var(--muted);padding:10px 4px 14px;
+    font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  nav button .ic{font-size:20px;}
+  nav button.active{color:var(--accent);}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎬 Viral Vlog Kit</h1>
+  <p>Day-in-the-life · bodybuilding · built for your phone</p>
+</header>
+
+<main>
+  <!-- HOOKS -->
+  <section class="panel active" id="p-hooks">
+    <div class="card">
+      <div class="label">Your 3-second hook</div>
+      <div class="big" id="hookText">—</div>
+      <div class="copy" data-copy="hookText">📋 Copy</div>
+      <button class="btn" id="hookNext">New hook 🔀</button>
+    </div>
+    <p class="muted small">Say this out loud in the first 3 seconds, or slap it on screen as text. The scroll stops here.</p>
+  </section>
+
+  <!-- 6-CLIP PLAN -->
+  <section class="panel" id="p-plan">
+    <div class="card">
+      <div class="label">Your 6-clip story</div>
+      <p class="body muted" style="margin-top:0">Film these 6 in order. Drop them into CapCut in this sequence — it tells a full day and keeps people watching to the end.</p>
+    </div>
+    <div id="planList"></div>
+    <button class="btn ghost" id="planShuffle">Shuffle clip ideas 🔀</button>
+  </section>
+
+  <!-- CAPTIONS -->
+  <section class="panel" id="p-cap">
+    <div class="card">
+      <div class="label">Post caption</div>
+      <div class="body" id="capText">—</div>
+      <div class="copy" data-copy="capText">📋 Copy</div>
+      <button class="btn" id="capNext">New caption 🔀</button>
+    </div>
+    <p class="muted small">First line is the hook of the caption — keep it punchy. Ends with a reason to save/follow.</p>
+  </section>
+
+  <!-- HASHTAGS -->
+  <section class="panel" id="p-tags">
+    <div class="card">
+      <div class="label">Pick a mix</div>
+      <div class="pill-row" id="tagPills">
+        <div class="pill active" data-set="balanced">Balanced</div>
+        <div class="pill" data-set="niche">Niche / dialed-in</div>
+        <div class="pill" data-set="reach">Max reach</div>
+      </div>
+      <div class="tags" id="tagText">—</div>
+      <div class="copy" data-copy="tagText">📋 Copy all</div>
+    </div>
+    <p class="muted small">Paste in your caption or first comment. 8–12 tags is the sweet spot — don't dump 30.</p>
+  </section>
+</main>
+
+<nav>
+  <button class="active" data-tab="hooks"><span class="ic">🎣</span>Hooks</button>
+  <button data-tab="plan"><span class="ic">🎞️</span>6 Clips</button>
+  <button data-tab="cap"><span class="ic">✍️</span>Captions</button>
+  <button data-tab="tags"><span class="ic">#️⃣</span>Hashtags</button>
+</nav>
+
+<script>
+// ---------- Content (day-in-the-life bodybuilding) ----------
+const HOOKS = [
+  "POV: you actually showed up today.",
+  "Nobody talks about what a real training day looks like.",
+  "5AM. Everyone's asleep. I'm already locked in.",
+  "Run my full day with me — training, food, the grind.",
+  "Be honest… could you do this every single day?",
+  "Everyone wants the physique. Almost nobody wants this routine.",
+  "Watch one full day before you say you 'don't have time'.",
+  "This is what staying disciplined actually looks like.",
+  "Day in the life of someone who refuses to skip.",
+  "The body you want is built on days exactly like this one.",
+  "No motivation today. Did it anyway. Here's the day.",
+  "Save this for the next time you want to skip the gym.",
+  "Most people quit at the part I'm about to show you.",
+  "What I eat and train in a day to stay this size.",
+  "It's not genetics. It's this — every single day.",
+];
+
+const CLIP_IDEAS = [
+  {
+    title: "The wake-up",
+    film: ["Alarm, getting up, splashing water, throwing on gym fit. Show the early hour.",
+           "First thing in the morning — bed, stretch, grab your shaker. Set the tone.",
+           "Quiet morning shots: sunrise out the window, lacing up shoes, slow energy building."],
+    text: ["5:12 AM", "Day starts now", "No snooze."],
+    cap: ["The grind doesn't wait.", "Most are asleep. We're up.", "It starts before sunrise."]
+  },
+  {
+    title: "Fuel up",
+    film: ["Making your first meal / pre-workout shake. Close-ups of the food.",
+           "Meal prep montage — eggs, oats, scoop of protein. Make it look good.",
+           "Quick coffee + pre-workout, packing your gym bag, out the door."],
+    text: ["Fuel ⛽", "Eat for the work", "Pre-workout locked"],
+    cap: ["You can't out-train a bad kitchen.", "Fuel the machine.", "Discipline starts on the plate."]
+  },
+  {
+    title: "The work",
+    film: ["Your hardest/heaviest set. Film from a low angle for size. Get the bar moving.",
+           "Working set montage — a few exercises, but show real effort and weight.",
+           "One brutal compound lift, full reps, controlled. Let it breathe, no fast cuts."],
+    text: ["The work", "Earn it", "Reps don't lie"],
+    cap: ["This is where it's built.", "No shortcuts past this.", "Every rep is a deposit."]
+  },
+  {
+    title: "The honest moment",
+    film: ["The rep that almost failed. Sweat, grind, the grimace. Keep it raw.",
+           "Sit on the bench gassed, talk to the camera for 5 sec about why you don't quit.",
+           "Show the part that hurts — the burnout set, shaking, pushing through anyway."],
+    text: ["This is the part nobody films", "Push.", "Comfort builds nothing"],
+    cap: ["The set you want to skip is the one that counts.", "Growth lives here.", "Show up even when it sucks."]
+  },
+  {
+    title: "After the work",
+    film: ["Post-workout pump check in the mirror, post-lift meal, shaker refill.",
+           "Walking out drenched, then the recovery meal. Progress check in the mirror.",
+           "Cool-down, stretch, post-workout shake, quick flex for the pump."],
+    text: ["Pump secured 💪", "Refuel", "Progress > yesterday"],
+    cap: ["Recovery is part of the work.", "Earned this meal.", "Little better than yesterday."]
+  },
+  {
+    title: "Wind-down + message",
+    film: ["End of day, talk to camera: drop a one-line message to whoever's watching.",
+           "Wind-down shots, then look at the lens and tell them to start today.",
+           "Closing shot of you walking off / lights down, with your sign-off line."],
+    text: ["Start today.", "Your turn.", "One day at a time"],
+    cap: ["If you needed a sign, this is it.", "Follow for the daily grind.", "Save this and start tomorrow."]
+  },
+];
+
+const CAP_OPEN = [
+  "Another day, another rep closer.",
+  "Most people scroll. A few of us show up.",
+  "This is what one honest day looks like.",
+  "No hype. Just the work.",
+  "Discipline > motivation, every time.",
+  "The body is built in the boring days.",
+  "Showed up tired. Did it anyway.",
+];
+const CAP_MID = [
+  "Training, food, recovery — all of it on repeat.",
+  "Nobody's coming to do it for you.",
+  "It's not one big day, it's a thousand small ones.",
+  "The work is quiet, the results are loud.",
+  "You don't need motivation, you need a routine.",
+  "Comfort is the enemy of the physique you want.",
+];
+const CAP_CLOSE = [
+  "Save this for the next time you want to skip. 💪",
+  "Follow for a daily dose of the grind.",
+  "Drop a 💪 if you're training today.",
+  "Tag someone who needs to see this.",
+  "Your turn — start today.",
+  "Comment your goal so it's real.",
+];
+
+const HASHTAGS = {
+  balanced: ["#gymtok","#bodybuilding","#dayinthelife","#fitnessmotivation","#gymmotivation","#fitfam","#workout","#gymlife","#fyp","#discipline"],
+  niche:    ["#bodybuilding","#bodybuildingmotivation","#hypertrophy","#pushpulllegs","#liftheavy","#gymrat","#naturalbodybuilding","#progressovereverything","#trainhard","#gymdiscipline"],
+  reach:    ["#fyp","#foryou","#gymtok","#viral","#motivation","#fitness","#fitnessmotivation","#gym","#trending","#dayinmylife","#grindmode","#mindset"],
+};
+
+// ---------- Logic ----------
+const $ = (id)=>document.getElementById(id);
+const pick = (a)=>a[Math.floor(Math.random()*a.length)];
+
+// Hooks
+let lastHook = -1;
+function newHook(){
+  let i; do { i = Math.floor(Math.random()*HOOKS.length); } while(i===lastHook && HOOKS.length>1);
+  lastHook = i; $('hookText').textContent = HOOKS[i];
+}
+$('hookNext').addEventListener('click', newHook);
+
+// Plan
+function renderPlan(){
+  $('planList').innerHTML = CLIP_IDEAS.map((c,i)=>`
+    <div class="card">
+      <div class="clip">
+        <div class="n">CLIP ${i+1}</div>
+        <h3>${c.title}</h3>
+        <div class="film">🎥 ${pick(c.film)}</div>
+        <div class="text">💬 On-screen text: “${pick(c.text)}”</div>
+        <div class="cap">caption idea: ${pick(c.cap)}</div>
+      </div>
+    </div>`).join('');
+}
+$('planShuffle').addEventListener('click', renderPlan);
+
+// Captions
+function newCap(){
+  $('capText').textContent = `${pick(CAP_OPEN)} ${pick(CAP_MID)} ${pick(CAP_CLOSE)}`;
+}
+$('capNext').addEventListener('click', newCap);
+
+// Hashtags
+let tagSet = 'balanced';
+function renderTags(){ $('tagText').textContent = HASHTAGS[tagSet].join(' '); }
+$('tagPills').addEventListener('click',(e)=>{
+  const p = e.target.closest('.pill'); if(!p) return;
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active'); tagSet = p.dataset.set; renderTags();
+});
+
+// Copy buttons
+document.addEventListener('click', async (e)=>{
+  const c = e.target.closest('.copy'); if(!c) return;
+  const txt = $(c.dataset.copy).textContent;
+  try { await navigator.clipboard.writeText(txt); }
+  catch(_){ const t=document.createElement('textarea'); t.value=txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  const orig = c.textContent; c.textContent = '✅ Copied!'; c.classList.add('done');
+  setTimeout(()=>{ c.textContent = orig; c.classList.remove('done'); }, 1400);
+});
+
+// Tabs
+document.querySelector('nav').addEventListener('click',(e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  $('p-'+b.dataset.tab).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+// Init
+newHook(); renderPlan(); newCap(); renderTags();
+</script>
+</body>
+</html>
