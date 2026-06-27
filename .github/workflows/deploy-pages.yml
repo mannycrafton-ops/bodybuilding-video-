@@ -29,6 +29,9 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Repo is public now, so the Actions token can create the Pages site itself.
+          enablement: true
 
       - name: Upload the Vlog Kit as the site
         uses: actions/upload-pages-artifact@v3
