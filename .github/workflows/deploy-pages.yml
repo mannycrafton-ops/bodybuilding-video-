@@ -1,0 +1,44 @@
+name: Deploy Vlog Kit to Pages
+
+on:
+  push:
+    branches:
+      - main
+      - claude/video-file-size-limit-utplv2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one deploy at a time; let the newest win.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Auto-enable Pages so no manual toggle is needed once the repo is public.
+          enablement: true
+
+      - name: Upload the Vlog Kit as the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Serve the kit at the site root for a clean, short phone link.
+          path: ./kit
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
