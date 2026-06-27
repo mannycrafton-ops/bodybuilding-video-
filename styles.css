@@ -119,6 +119,25 @@ main {
 .clip .controls button:hover { border-color: var(--accent); }
 .clip .controls .del:hover { border-color: var(--accent); color: var(--accent); }
 
+.clip .caption {
+  margin-top: 8px; width: 100%; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+}
+.clip .caption::placeholder { color: var(--muted); }
+
+.music-bar { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.music-bar h2 { font-size: 15px; margin: 0 0 10px; }
+.music-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ghost {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px;
+}
+.ghost:hover { border-color: var(--accent); }
+.ghost.small { padding: 3px 8px; font-size: 12px; }
+.vol-label { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.vol-label input[type=range] { flex: 1; accent-color: var(--accent); }
+#volVal { color: var(--accent-2); min-width: 38px; }
+
 .export-bar { margin-top: 18px; }
 .primary {
   background: var(--accent); color: white; border: none; border-radius: 10px;

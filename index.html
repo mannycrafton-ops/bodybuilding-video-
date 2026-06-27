@@ -46,6 +46,20 @@
 
       <ul id="timeline" class="timeline"></ul>
 
+      <div class="music-bar">
+        <h2>🎵 Background music <span class="muted small">(optional)</span></h2>
+        <div class="music-row">
+          <input type="file" id="musicInput" accept="audio/*" hidden />
+          <button id="musicBtn" class="ghost">Add music track</button>
+          <span class="muted small" id="musicName">No track added</span>
+          <button id="musicClear" class="ghost small" hidden>remove</button>
+        </div>
+        <label class="vol-label" id="volWrap" hidden>
+          Music volume <span id="volVal">35%</span>
+          <input type="range" id="musicVol" min="0" max="100" value="35" />
+        </label>
+      </div>
+
       <div class="export-bar">
         <button id="exportBtn" class="primary" disabled>Export Vlog 🚀</button>
         <div class="progress" id="progressWrap" hidden>

@@ -9,6 +9,8 @@ const state = {
   clips: [],        // { id, file, url, name, duration, start, end, thumb }
   format: '9:16',
   selectedId: null,
+  music: null,        // File | null
+  musicVolume: 0.35,  // 0..1
 };
 
 const FORMATS = {
@@ -19,6 +21,7 @@ const FORMATS = {
 
 let ffmpeg = null;     // lazily loaded on first export
 let ffmpegLoaded = false;
+let fontReady = false;  // caption font written to the engine FS
 
 // ---- Element refs ----------------------------------------------------------
 const $ = (id) => document.getElementById(id);
@@ -53,7 +56,7 @@ async function addFiles(fileList) {
     const clip = {
       id: crypto.randomUUID(),
       file, url, name: file.name,
-      duration: 0, start: 0, end: 0, thumb: '',
+      duration: 0, start: 0, end: 0, thumb: '', caption: '',
     };
     state.clips.push(clip);
     // Probe duration + grab a thumbnail without blocking the loop.
@@ -92,6 +95,10 @@ function loadMetadata(clip) {
 }
 
 // ---- Rendering -------------------------------------------------------------
+function escapeAttr(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
 function fmt(t) {
   if (!t || t < 0) t = 0;
   const m = Math.floor(t / 60);
@@ -130,6 +137,8 @@ function render() {
           </label>
         </div>
         <div class="dur">▶ ${fmt(trimmed)} used &middot; full clip ${fmt(clip.duration)}</div>
+        <input class="caption" type="text" maxlength="120" data-act="caption"
+               placeholder="On-screen caption (optional)" value="${escapeAttr(clip.caption)}" />
       </div>
       <div class="controls">
         <button data-act="up" title="Move up">▲</button>
@@ -142,6 +151,9 @@ function render() {
       const act = el.dataset.act;
       if (act === 'start' || act === 'end') {
         el.addEventListener('change', () => updateTrim(clip.id, act, parseFloat(el.value)));
+      } else if (act === 'caption') {
+        // Don't re-render on each keystroke (it would steal focus); just store.
+        el.addEventListener('input', () => { clip.caption = el.value; });
       } else {
         el.addEventListener('click', () => clipAction(clip.id, act));
       }
@@ -194,6 +206,36 @@ document.querySelectorAll('.fmt').forEach((btn) => {
   });
 });
 
+// ---- Music controls --------------------------------------------------------
+const musicBtn = $('musicBtn');
+const musicInput = $('musicInput');
+const musicName = $('musicName');
+const musicClear = $('musicClear');
+const musicVol = $('musicVol');
+const volWrap = $('volWrap');
+const volVal = $('volVal');
+
+musicBtn.addEventListener('click', () => musicInput.click());
+musicInput.addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  state.music = f;
+  musicName.textContent = f.name;
+  musicClear.hidden = false;
+  volWrap.hidden = false;
+});
+musicClear.addEventListener('click', () => {
+  state.music = null;
+  musicInput.value = '';
+  musicName.textContent = 'No track added';
+  musicClear.hidden = true;
+  volWrap.hidden = true;
+});
+musicVol.addEventListener('input', () => {
+  state.musicVolume = musicVol.value / 100;
+  volVal.textContent = musicVol.value + '%';
+});
+
 // ---- Engine ----------------------------------------------------------------
 async function ensureFFmpeg() {
   if (ffmpegLoaded) return;
@@ -208,6 +250,13 @@ async function ensureFFmpeg() {
     coreURL: `${base}/ffmpeg-core.js`,
     wasmURL: `${base}/ffmpeg-core.wasm`,
   });
+  // Bundled caption font (local file, no network dependency).
+  try {
+    await ffmpeg.writeFile('font.ttf', await fetchFile('assets/Anton-Regular.ttf'));
+    fontReady = true;
+  } catch (_) {
+    fontReady = false; // captions will be skipped, rest still works
+  }
   ffmpegLoaded = true;
 }
 
@@ -252,9 +301,22 @@ async function exportVlog() {
       await ffmpeg.writeFile(inName, await fetchFile(clip.file));
 
       const hasAudio = await clipHasAudio(inName);
-      const vf =
+      let vf =
         `scale=${w}:${h}:force_original_aspect_ratio=decrease,` +
         `pad=${w}:${h}:(ow-iw)/2:(oh-ih)/2:black,setsar=1,fps=30`;
+
+      // On-screen caption (TikTok-style bar near the bottom).
+      const caption = (clip.caption || '').trim();
+      if (caption && fontReady) {
+        const capFile = `cap${i}.txt`;
+        await ffmpeg.writeFile(capFile, new TextEncoder().encode(caption));
+        const fontSize = Math.round(w / 15);
+        vf += `,drawtext=fontfile=font.ttf:textfile=${capFile}` +
+          `:fontcolor=white:fontsize=${fontSize}` +
+          `:box=1:boxcolor=black@0.5:boxborderw=22` +
+          `:x=(w-text_w)/2:y=h-text_h-${Math.round(h * 0.12)}` +
+          `:line_spacing=10`;
+      }
 
       const args = ['-ss', String(clip.start), '-t', String(dur), '-i', inName];
       if (!hasAudio) {
@@ -277,13 +339,31 @@ async function exportVlog() {
     }
 
     // 2) Concatenate the normalized parts (identical params -> stream copy).
-    setProgress(0.88, 'Stitching clips together…');
+    setProgress(0.85, 'Stitching clips together…');
     const list = parts.map((p) => `file ${p}`).join('\n');
     await ffmpeg.writeFile('list.txt', new TextEncoder().encode(list));
+    const stitched = state.music ? 'combined.mp4' : 'output.mp4';
     await ffmpeg.exec([
       '-f', 'concat', '-safe', '0', '-i', 'list.txt',
-      '-c', 'copy', 'output.mp4',
+      '-c', 'copy', stitched,
     ]);
+
+    // 2b) Mix in background music (looped to cover the full length, ducked).
+    if (state.music) {
+      setProgress(0.92, 'Adding background music…');
+      await ffmpeg.writeFile('music_in', await fetchFile(state.music));
+      const vol = state.musicVolume.toFixed(2);
+      await ffmpeg.exec([
+        '-i', 'combined.mp4',
+        '-stream_loop', '-1', '-i', 'music_in',
+        '-filter_complex',
+        `[1:a]volume=${vol}[m];[0:a][m]amix=inputs=2:duration=first:normalize=0[aout]`,
+        '-map', '0:v', '-map', '[aout]',
+        '-c:v', 'copy', '-c:a', 'aac', '-shortest', 'output.mp4',
+      ]);
+      try { await ffmpeg.deleteFile('combined.mp4'); } catch (_) {}
+      try { await ffmpeg.deleteFile('music_in'); } catch (_) {}
+    }
 
     // 3) Hand the finished file to the user.
     setProgress(0.98, 'Wrapping up…');
@@ -304,6 +384,7 @@ async function exportVlog() {
 
     // Cleanup the virtual FS.
     for (const p of parts) { try { await ffmpeg.deleteFile(p); } catch (_) {} }
+    for (let i = 0; i < n; i++) { try { await ffmpeg.deleteFile(`cap${i}.txt`); } catch (_) {} }
     try { await ffmpeg.deleteFile('list.txt'); } catch (_) {}
     try { await ffmpeg.deleteFile('output.mp4'); } catch (_) {}
   } catch (err) {
